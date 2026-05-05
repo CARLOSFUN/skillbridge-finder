@@ -1,0 +1,18 @@
+# Virtual environment
+venv/
+
+# Cached API data
+skillbridge_cache.json
+skillbridge_raw_dump.json
+
+# Search result exports
+*.csv
+*.json
+
+# Keep requirements.txt (it IS needed)
+!requirements.txt
+
+# macOS system files
+.DS_Store
+__pycache__/
+*.pyc
