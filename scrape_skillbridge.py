@@ -545,17 +545,28 @@ def write_json(output_path: Path, organizations: Iterable[Organization]) -> int:
     return len(data)
 
 
+DOWNLOADS_DIR = Path.home() / "Downloads"
+
+
+def resolve_output_path(output: str, fmt: str) -> Path:
+    """If output is a bare filename (no directory), save it to ~/Downloads."""
+    p = Path(output)
+    if not p.parent.name or p.parent == Path("."):
+        p = DOWNLOADS_DIR / p.name
+    if fmt != "json" and p.suffix.lower() not in (".csv", ".json"):
+        p = p.with_suffix(".csv")
+    return p
+
+
 def save_results(
     results: list[Organization],
     output: str,
     fmt: str,
 ) -> None:
-    out_path = Path(output)
+    out_path = resolve_output_path(output, fmt)
     if fmt == "json" or out_path.suffix.lower() == ".json":
         count = write_json(out_path, results)
     else:
-        if out_path.suffix.lower() not in (".csv",):
-            out_path = out_path.with_suffix(".csv")
         count = write_csv(out_path, results)
     print(f"\n  Saved {count} record(s) to {out_path}\n")
 
@@ -638,7 +649,7 @@ def run_interactive(
     if results:
         try:
             dest = input(
-                "  Save to file? (Enter a filename like results.csv, or press Enter to skip): "
+                "  Save to file? (e.g. results.csv — saved to ~/Downloads, or Enter to skip): "
             ).strip()
         except (KeyboardInterrupt, EOFError):
             dest = ""
