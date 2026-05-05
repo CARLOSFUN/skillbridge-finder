@@ -22,8 +22,28 @@ That's it. The launcher creates the virtual environment and installs dependencie
 $ ./run.sh
 ```
 
-```
+  Industry categories:
 
+     1. Aerospace / Aviation
+     2. Technology / IT / Cyber
+     3. Defense / Intelligence
+     4. Healthcare / Medical
+     5. Logistics / Supply Chain
+     ...
+    12. Other
+
+  Pick an industry number (or press Enter to skip): 4
+  Keyword in company name (or Enter to skip):
+
+  Found 12 organization(s):
+
+     # | Organization Name           | Industry             | Website                  | MOU Expires
+  --------------------------------------------------------------------------------------------------
+     1 | Baylor Scott & White Health | Healthcare / Medical | https://www.bswhealth.com | 2026-12-19
+     2 | Methodist Healthcare System | Healthcare / Medical | https://www.joinmethodi…  | 2027-05-02
+  ...
+
+  Save to file? (Enter a filename like results.csv, or press Enter to skip):
 ```
 
 ---
@@ -36,8 +56,6 @@ $ ./run.sh
 | `skillbridge --list-industries` | Show all 12 industry categories |
 | `skillbridge --industry "Technology"` | Filter by industry |
 | `skillbridge --search "amazon"` | Search by keyword in company name |
-| `skillbridge --state TX` | Filter by state |
-| `skillbridge --industry "Healthcare" --state CA` | Combine filters |
 | `skillbridge -o results.csv` | Save results to a CSV file |
 | `skillbridge --industry "Logistics" -o out.csv` | Filter and save |
 | `skillbridge --format json -o out.json` | Save as JSON |

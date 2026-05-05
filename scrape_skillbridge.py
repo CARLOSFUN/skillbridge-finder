@@ -7,8 +7,6 @@ USAGE (just run this — setup is automatic):
     python scrape_skillbridge.py --search "cyber"              # keyword search
     python scrape_skillbridge.py --industry "Technology"       # filter by industry
     python scrape_skillbridge.py --list-industries             # show industry list
-    python scrape_skillbridge.py --state TX                    # filter by state
-    python scrape_skillbridge.py --search "IT" --state CA      # combine filters
     python scrape_skillbridge.py --refresh                     # force fresh download
     python scrape_skillbridge.py -o results.csv                # save all to file
     python scrape_skillbridge.py --industry "Healthcare" -o out.csv
@@ -65,7 +63,7 @@ HEADERS = {
 }
 
 CA_BUNDLE = certifi.where()
-CSV_FIELDS = ["id", "name", "industry", "state", "website", "mou_expiration"]
+CSV_FIELDS = ["id", "name", "industry", "website", "mou_expiration"]
 
 # Industry auto-tagging: ordered list of (label, regex patterns).
 # Checked top-to-bottom; first match wins.
@@ -153,7 +151,6 @@ class Organization:
     id: str | int | None
     name: str
     industry: str
-    state: str | None
     website: str | None
     mou_expiration: str | None
 
@@ -229,22 +226,11 @@ def fetch_page(
 
 
 def normalize_organization(raw: dict[str, Any]) -> Organization:
-    raw_state = (
-        raw.get("state")
-        or raw.get("st")
-        or raw.get("stateCode")
-        or raw.get("stateAbbr")
-    )
-    state = clean_string(raw_state)
-    if state and len(state) == 2:
-        state = state.upper()
-
     name = clean_string(raw.get("name")) or ""
     return Organization(
         id=raw.get("id"),
         name=name,
         industry=tag_industry(name),
-        state=state,
         website=clean_string(raw.get("url")),
         mou_expiration=clean_date(raw.get("mexd")),
     )
@@ -425,9 +411,7 @@ def load_cache() -> list[Organization] | None:
             orgs.append(Organization(
                 id=item.get("id"),
                 name=name,
-                # Re-tag if cache predates the industry field.
                 industry=item.get("industry") or tag_industry(name),
-                state=item.get("state"),
                 website=item.get("website"),
                 mou_expiration=item.get("mou_expiration"),
             ))
@@ -484,7 +468,6 @@ def get_organizations(
 def filter_organizations(
     organizations: list[Organization],
     search: str | None = None,
-    state: str | None = None,
     industry: str | None = None,
 ) -> list[Organization]:
     results = organizations
@@ -492,10 +475,6 @@ def filter_organizations(
     if search:
         kw = search.lower()
         results = [o for o in results if kw in o.name.lower()]
-
-    if state:
-        target = state.upper().strip()
-        results = [o for o in results if o.state and o.state.upper() == target]
 
     if industry:
         target = industry.lower().strip()
@@ -628,9 +607,6 @@ def run_interactive(
         search = input(
             "  Keyword in company name (or Enter to skip): "
         ).strip() or None
-        state = input(
-            "  State code (e.g. TX, CA — or Enter to skip): "
-        ).strip() or None
     except (KeyboardInterrupt, EOFError):
         print("\n  Cancelled.")
         return 0
@@ -656,7 +632,7 @@ def run_interactive(
         logging.error("No records collected.")
         return 1
 
-    results = filter_organizations(organizations, search=search, state=state, industry=industry)
+    results = filter_organizations(organizations, search=search, industry=industry)
     print_table(results)
 
     if results:
@@ -684,11 +660,8 @@ def parse_args() -> argparse.Namespace:
             "Examples:\n"
             "  python scrape_skillbridge.py\n"
             "  python scrape_skillbridge.py --search 'cyber'\n"
-            "  python scrape_skillbridge.py --state TX\n"
-            "  python scrape_skillbridge.py --search 'IT' --state CA\n"
             "  python scrape_skillbridge.py --list-industries\n"
             "  python scrape_skillbridge.py --industry 'Technology'\n"
-            "  python scrape_skillbridge.py --industry 'Healthcare' --state TX\n"
             "  python scrape_skillbridge.py --search 'logistics' -o results.csv\n"
             "  python scrape_skillbridge.py --refresh\n"
             "  python scrape_skillbridge.py --dump-fields\n"
@@ -713,11 +686,6 @@ def parse_args() -> argparse.Namespace:
         "--list-industries",
         action="store_true",
         help="Print all available industry categories and exit.",
-    )
-    parser.add_argument(
-        "--state",
-        metavar="ST",
-        help="Filter by 2-letter state code (e.g. TX, CA, VA).",
     )
     parser.add_argument(
         "--refresh",
@@ -832,7 +800,6 @@ def main() -> int:
     results = filter_organizations(
         organizations,
         search=args.search,
-        state=args.state,
         industry=args.industry,
     )
 
