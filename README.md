@@ -18,13 +18,7 @@ That's it. The launcher creates the virtual environment and installs dependencie
 
 ## Demo
 
-```
-
-
-
-
-
-```
+https://github.com/CARLOSFUN/skillbridge-finder/raw/main/demo.mp4
 
 ---
 
