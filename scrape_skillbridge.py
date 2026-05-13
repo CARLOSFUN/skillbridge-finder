@@ -1205,6 +1205,44 @@ def _interactive_orgs(
     return 0
 
 
+def browse_and_save(results: list[Opportunity]) -> None:
+    """Loop letting the user view full details for any row, then optionally save."""
+    if not results:
+        return
+
+    print("  Enter a row number to see full details, or press Enter to finish.\n")
+
+    while True:
+        try:
+            choice = input("  Row # (or Enter to finish): ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            break
+
+        if not choice:
+            break
+
+        if choice.isdigit():
+            idx = int(choice) - 1
+            if 0 <= idx < len(results):
+                print_opportunity_detail(results[idx], idx + 1)
+            else:
+                print(f"  Invalid number — enter 1 to {len(results)}.\n")
+        else:
+            print(f"  Please enter a number (1–{len(results)}) or press Enter to finish.\n")
+
+    try:
+        dest = input(
+            "  Save to file? (e.g. opportunities.csv — saved to ~/Downloads, or Enter to skip): "
+        ).strip()
+    except (KeyboardInterrupt, EOFError):
+        dest = ""
+
+    if dest:
+        fmt = "json" if dest.endswith(".json") else "csv"
+        save_results(results, dest, fmt)  # type: ignore[arg-type]
+
+
 def _interactive_opportunities(
     session: requests.Session,
     page_size: int,
@@ -1275,31 +1313,7 @@ def _interactive_opportunities(
     )
 
     print_opportunity_table(results)
-
-    if results:
-        try:
-            detail_in = input(
-                "  Enter a row number to see full details (or Enter to skip): "
-            ).strip()
-        except (KeyboardInterrupt, EOFError):
-            detail_in = ""
-
-        if detail_in.isdigit():
-            idx = int(detail_in) - 1
-            if 0 <= idx < len(results):
-                print_opportunity_detail(results[idx], idx + 1)
-
-        try:
-            dest = input(
-                "  Save to file? (e.g. opportunities.csv — saved to ~/Downloads, or Enter to skip): "
-            ).strip()
-        except (KeyboardInterrupt, EOFError):
-            dest = ""
-
-        if dest:
-            fmt = "json" if dest.endswith(".json") else "csv"
-            save_results(results, dest, fmt)  # type: ignore[arg-type]
-
+    browse_and_save(results)
     return 0
 
 
@@ -1448,6 +1462,7 @@ def main() -> int:
             save_results(results_opp, args.output, args.format)  # type: ignore[arg-type]
         else:
             print_opportunity_table(results_opp)
+            browse_and_save(results_opp)
 
         return 0
 
