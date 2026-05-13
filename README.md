@@ -28,7 +28,7 @@ https://github.com/CARLOSFUN/skillbridge-finder/raw/main/demo.mp4
 ### Mode 1 — Organization Search
 Browse the full catalog of 6,000+ DoD-authorized SkillBridge employers. Filter by industry or keyword.
 
-### Mode 2 — Opportunity Search (NEW)
+### Mode 2 — Opportunity Search
 Search 13,000+ individual program positions with rich details pulled from the SkillBridge Location API:
 
 - **Employer contact email** — reach out directly to the hiring POC
@@ -56,7 +56,7 @@ Search 13,000+ individual program positions with rich details pulled from the Sk
 | `skillbridge --format json -o out.json` | Save as JSON |
 | `skillbridge --refresh` | Force fresh download from DoD API |
 
-### Opportunity Search (NEW)
+### Opportunity Search
 
 | Command | What It Does |
 |---|---|
@@ -72,6 +72,36 @@ Search 13,000+ individual program positions with rich details pulled from the Sk
 | `skillbridge --refresh --opportunities` | Force fresh download of opportunity data |
 
 > Filters can be combined freely. City filter uses partial match — `--city "diego"` matches San Diego.
+
+---
+
+## Browsing Results
+
+After any `--opportunities` search, the program displays a numbered results table. You can then browse individual listings interactively before saving:
+
+```
+  Found 12 opportunity/ies:
+
+   #  | Organization            | Location       | Mode      | Duration       | Employer Email
+  ----|-------------------------|----------------|-----------|----------------|----------------------
+   1  | CACI International      | Chantilly, VA  | In-Person | 91 - 120 days  | john.smith@caci.com
+   2  | Booz Allen Hamilton     | Virtual        | Virtual   | 151 - 180 days | jane.doe@bah.com
+   ...
+
+  Enter a row number to see full details, or press Enter to finish.
+
+  Row # (or Enter to finish): 2
+```
+
+Each detail card shows:
+- Full job description and program summary
+- Employer name and direct email address
+- City, state, and delivery method
+- Eligible military branches
+- Target MOS/MOC codes
+- Eligibility requirements
+
+Enter as many row numbers as you want. Press **Enter** with no input when you are done browsing — you will then be asked if you want to save the results to a file.
 
 ---
 
